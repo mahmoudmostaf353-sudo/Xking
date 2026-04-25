@@ -1,0 +1,86 @@
+#include <iostream>
+#include <limits>
+#include <string>
+#include <iomanip>
+
+constexpr int    kPrecision  = 2;
+constexpr double kMinAmount  = 0.0;
+const     char   kSeparator[] = "=============================";
+
+void SetOutputFormat()
+{
+    std::cout << std::fixed << std::setprecision(kPrecision);
+}
+
+void ClearInputStream()
+{
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+bool IsValidAmount(double value)
+{
+    return !std::cin.fail() && value > kMinAmount;
+}
+
+double ReadPositiveNumber(const std::string& prompt)
+{
+    double value;
+    while (true)
+    {
+        std::cout << prompt;
+        std::cin >> value;
+
+        if (IsValidAmount(value))
+            return value;
+
+        ClearInputStream();
+        std::cout << "  [!] Invalid input. Please enter a positive number.\n";
+    }
+}
+
+bool CanMakeChange(double bill, double cash)
+{
+    return cash >= bill;
+}
+
+double CalculateChange(double bill, double cash)
+{
+    return cash - bill;
+}
+
+void PrintRow(const std::string& label, double amount)
+{
+    std::cout << std::left << std::setw(20) << label << ": " << amount << "\n";
+}
+
+void PrintReceipt(double bill, double cash)
+{
+    double change = CalculateChange(bill, cash);
+
+    std::cout << "\n" << kSeparator << "\n";
+    std::cout << "         RECEIPT\n";
+    std::cout << kSeparator << "\n";
+    PrintRow("Total Bill",  bill);
+    PrintRow("Cash Paid",   cash);
+    std::cout << "-----------------------------\n";
+    PrintRow("Change",      change);
+    std::cout << kSeparator << "\n";
+}
+
+int main()
+{
+    SetOutputFormat();
+
+    double bill = ReadPositiveNumber("Enter total bill : ");
+    double cash = ReadPositiveNumber("Enter cash paid  : ");
+
+    if (!CanMakeChange(bill, cash))
+    {
+        std::cout << "\n  [!] Error: Cash paid is less than the total bill.\n";
+        return EXIT_FAILURE;
+    }
+
+    PrintReceipt(bill, cash);
+    return EXIT_SUCCESS;
+}
